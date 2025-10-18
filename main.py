@@ -1,19 +1,31 @@
 #opencv and mediapipe
 import cv2 as cv
 import mediapipe as mp
+import keyboard
 
 mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
 mp_hands = mp.solutions.hands
 
 def getHandMove(hand_landmarks):
-    threshold = 20
+    threshold = 0.1
     landmarks = hand_landmarks.landmark
+    if all([(landmarks[i+3].x - landmarks[i].x) > threshold for i in range(5,20,4)]): return "Backspin"
+    if all([(landmarks[i+3].x - landmarks[i].x) < -threshold for i in range(5,20,4)]): return "Frontspin"
     if all([landmarks[i].y < landmarks[i+3].y for i in range(5, 20, 4)]): return "STOP"
-    elif all([landmarks[i].y > landmarks[i+3].y for i in range(5, 20, 4)]): return "GO"
-    elif all([(landmarks[i+3].x - landmarks[i].x) > threshold for i in range(5,20,4)]): return "frontspin"
-    elif all([(landmarks[i+3].x - landmarks[i].x) < -threshold for i in range(5,20,4)]): return "backspin"
+    if all([landmarks[i].y > landmarks[i+3].y for i in range(5, 20, 4)]): return "GO"
     else: return "Pending Hand Movement"
+
+key_mapping = {
+    "GO": "w",
+    "STOP": "s",
+    "Frontspin": "e", # Assuming Frontspin is a leftward gesture for 'a'
+    "Backspin": "q",  # Assuming Backspin is a rightward gesture for 'd'
+    "Pending Hand Movement": None
+}
+
+current_key_pressed = None
+
 vid = cv.VideoCapture(0)
 
 p1_move = None
@@ -40,18 +52,40 @@ with mp_hands.Hands(model_complexity=0,
                 
         frame = cv.flip(frame, 1)
         
+        target_key = None
+       
+        
        
         hls = results.multi_hand_landmarks
         if hls and len(hls) == 1:
             p1_move = getHandMove(hls[0])
-            gameText = str(getHandMove(hls[0]))
-        #else:
-         #   gameText = "Put 1 hand in the frame at a time!"
+            gameText = str(p1_move)
+            target_key = key_mapping.get(p1_move) 
+            # If a key was held down, release it first.
+            #if current_key_pressed is not None:
+               # keyboard.release(current_key_pressed)
         
-        cv.putText(frame, gameText, (50, 80), cv.FONT_HERSHEY_PLAIN, 2, (0, 255, 255), 2, cv.LINE_AA)
+                # If the new gesture needs a key, press it dowwn.
+            if not target_key is None:
+                
+                keyboard.send(target_key)
+        
+            # Update the state to remember which key is now being held.
+            current_key_pressed = target_key  
+        else:
+            gameText = "Put 1 hand in the frame at a time!"
+            target_key=None
+        
+        
+        
+        
+        cv.putText(frame, gameText, (25, 40), cv.FONT_HERSHEY_PLAIN, 1, (0, 255, 255), 2, cv.LINE_AA)
         cv.imshow('frame', frame)
         
         if cv.waitKey(1) & 0xFF == ord('q'): break
+        
+if current_key_pressed is not None:
+    keyboard.release(current_key_pressed)
         
 vid.release()
 cv.destroyAllWindows()    
