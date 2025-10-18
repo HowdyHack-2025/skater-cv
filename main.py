@@ -10,16 +10,14 @@ def getHandMove(hand_landmarks):
     threshold = 20
     landmarks = hand_landmarks.landmark
     if all([landmarks[i].y < landmarks[i+3].y for i in range(5, 20, 4)]): return "STOP"
-    elif all([landmarks[i].y < landmarks[i+3].y for i in range(5, 20, 4)]): return "GO"
+    elif all([landmarks[i].y > landmarks[i+3].y for i in range(5, 20, 4)]): return "GO"
     elif all([(landmarks[i+3].x - landmarks[i].x) > threshold for i in range(5,20,4)]): return "frontspin"
     elif all([(landmarks[i+3].x - landmarks[i].x) < -threshold for i in range(5,20,4)]): return "backspin"
     else: return "Pending Hand Movement"
 vid = cv.VideoCapture(0)
 
-clock = 0
 p1_move = None
 gameText = ""
-success = True
 
 with mp_hands.Hands(model_complexity=0,
                     min_detection_confidence=0.5,
@@ -42,17 +40,15 @@ with mp_hands.Hands(model_complexity=0,
                 
         frame = cv.flip(frame, 1)
         
-        if 0 == clock < 20:
-            success = True
-            gameText = "Ready?"
-        elif clock == 21:
-            hls = results.multi_hand_landmarks
-            if hls and len(hls) == 1:
-                p1_move = getHandMove(hls[0])
-            else:
-                success = False
+       
+        hls = results.multi_hand_landmarks
+        if hls and len(hls) == 1:
+            p1_move = getHandMove(hls[0])
+            gameText = str(getHandMove(hls[0]))
+        #else:
+         #   gameText = "Put 1 hand in the frame at a time!"
         
-        
+        cv.putText(frame, gameText, (50, 80), cv.FONT_HERSHEY_PLAIN, 2, (0, 255, 255), 2, cv.LINE_AA)
         cv.imshow('frame', frame)
         
         if cv.waitKey(1) & 0xFF == ord('q'): break
