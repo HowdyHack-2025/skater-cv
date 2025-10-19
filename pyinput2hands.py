@@ -87,7 +87,7 @@ with mp_hands.Hands(model_complexity=0,
                 if prev_key1:
                     pydirectinput.keyUp(prev_key1)
                 if key1:
-                    pydirectinput.press(key1)
+                    pydirectinput.keyDown(key1)
                 current_keys_down["Left"] = key1
 
 
