@@ -1,18 +1,22 @@
 # skater-cv
 computer vision program for skateCam
 
+notice: pydirectinput ONLY works with windows
+
 note: release binary doesnt work, please build from source
 
-### build from source (only method)
+### build from source (release doesn't compile)
 prerequisites:
 
-python 3.12
+use python 3.12
 
-`python3.12 -m pip install pydirectinput mediapipe`
+`python -m pip install pydirectinput mediapipe`
 
-clone repository
+if the command does not work, you may need to use `python3` or `python3.12` for it to work
 
-`python main.py`
+clone repository, run the following python file:
+
+`python pyinput2hands.py`
 
 
 ### usage
