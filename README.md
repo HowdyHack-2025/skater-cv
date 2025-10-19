@@ -1,12 +1,14 @@
 # skater-cv
 computer vision program for skateCam
 
-### build from source
+note: release binary doesnt work, please build from source
+
+### build from source (only method)
 prerequisites:
 
 python 3.12
 
-`pip install pydirectinput mediapipe`
+`python3.12 -m pip install pydirectinput mediapipe`
 
 clone repository
 
