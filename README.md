@@ -1,7 +1,7 @@
 # skater-cv
-computer vision program for skater 2d
+computer vision program for skateCam
 
-### run from source
+### build from source
 prerequisites:
 
 python 3.12
@@ -14,5 +14,6 @@ clone repository
 
 
 ### usage
-fist for kick flip
-palm for 
+palm to go
+twist palm midair to flip
+use while running skater-2d (or skatecam)
