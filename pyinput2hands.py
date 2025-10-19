@@ -46,7 +46,10 @@ key_mapping = {
 vid = cv.VideoCapture(0)
 
 p1_move = None
+p2_move = None
 gameText = ""
+
+current_keys_down = {"Left": None, "Right": None}
 
 with mp_hands.Hands(model_complexity=0,
                     min_detection_confidence=0.5,
@@ -78,23 +81,40 @@ with mp_hands.Hands(model_complexity=0,
             gameText = f'P1: {str(p1_move)}, P2: {str(p2_move)}'
 
             key1 = key_mapping["Left"].get(p1_move)
-            if key1:
-                pydirectinput.press(key1)
+            prev_key1 = current_keys_down["Left"]
+
+            if key1 != prev_key1:
+                if prev_key1:
+                    pydirectinput.keyUp(prev_key1)
+                if key1:
+                    pydirectinput.press(key1)
+                current_keys_down["Left"] = key1
+
+
             key2 = key_mapping["Right"].get(p2_move)
-            if key2:
-                pydirectinput.press(key2)
+            prev_key2 = current_keys_down["Right"]
+            if key2 != prev_key2: 
+                if prev_key2:
+                    pydirectinput.keyUp(prev_key2)
+                if key2:
+                    pydirectinput.keyDown(key2)
+                current_keys_down["Right"] = key2
 
             # Update the state to remember which key is now being held.
         else:
             gameText = "Put 2 hands in the frame at a time!"       
-        
-        
+            for side in ["Left", "Right"]:
+                if current_keys_down[side]:
+                    pydirectinput.keyUp(current_keys_down[side])
+                    current_keys_down[side] = None   
         
         cv.putText(frame, gameText, (25, 40), cv.FONT_HERSHEY_PLAIN, 1, (0, 255, 255), 2, cv.LINE_AA)
         cv.imshow('frame', frame)
         
         if cv.waitKey(1) & 0xFF == ord('q'): break
-        
+for side in ["Left", "Right"]:
+    if current_keys_down[side]:
+        pydirectinput.keyUp(current_keys_down[side])
 vid.release()
 cv.destroyAllWindows()    
 
